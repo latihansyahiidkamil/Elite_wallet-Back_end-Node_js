@@ -13,7 +13,9 @@ function register(body,callback){
         where:{
             [Op.or]:[{nationalId: body.nationalId},
                     {email: body.email},
-                    {username: body.username}
+                    {email: body.username},
+                    {username: body.username},
+                    {username: body.email}
             ]
         }
     }).then((data)=>{
@@ -40,22 +42,26 @@ function register(body,callback){
 
 
 function login(body,callback){
-    let filter = {};
+    let username_filter = {};
+    let email_filter = {};    
     if(body.username){
-        filter.username = body.username;
+        username_filter.username = body.username;
     }
-    else if(body.email){
-        filter.email = body.email;
+    if(body.email){
+        email_filter.email = body.email;
     }
     else{
         return callback(null,null)
     }
     Customer.findOne({
-        where: filter
+        where: {
+            [Op.or]:[username_filter, email_filter]
+        }
     }).then((data) => {
         callback(null, data);
     })
 }
+
 
 function update(body,callback){
     Customer.update(
